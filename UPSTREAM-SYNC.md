@@ -19,6 +19,7 @@ Changes adopted:
 - Collabora healthcheck probes with `/usr/bin/coolwsd --probe --use-env-vars`.
 - Collabora `extra_params` sets `logging.level` and `logging.level_startup` from `COLLABORA_LOG_LEVEL`.
 - `.env.example` documents `COLLABORA_LOG_LEVEL=warning`. The deployment `.env` needs the same key before the next recreate.
+- `ADDITIONAL_COLLABORA_OPTIONS` is one coolwsd argument. The old bracket-list form was interpreted by the removed start.sh wrapper, and the current image exits 70 if it receives that string.
 - Apache gets `HARP_HOST=nextcloud-aio-harp` so the new Caddyfile can load its `/exapps` route. The route has no running backend.
 
 Not adopted:
