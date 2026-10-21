@@ -2,7 +2,8 @@
 
 This file records the exact `nextcloud/all-in-one` upstream commit used when
 manually syncing this customized stack. The local compose file intentionally
-preserves ipvlan networking, external reverse-proxy handling, Arcane labels, and
+preserves ipvlan networking, external reverse-proxy handling, Arcane labels,
+`TURN_DOMAIN` for a public TURN host other than `NC_DOMAIN`, and
 the memories transcoder customization.
 
 ## 2026-09-30 - `nextcloud/all-in-one@f294364355190ddedcd646c471a0bfe852173d47`

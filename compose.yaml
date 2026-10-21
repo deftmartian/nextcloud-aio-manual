@@ -157,6 +157,7 @@ services:
       - OVERWRITEHOST=${NC_DOMAIN}
       - OVERWRITEPROTOCOL=https
       - TURN_SECRET
+      - TURN_DOMAIN                     # Public TURN host. Empty falls back to NC_DOMAIN.
       - SIGNALING_SECRET
       - ONLYOFFICE_SECRET
       - EUROOFFICE_SECRET
@@ -333,6 +334,7 @@ services:
       - NC_DOMAIN
       - TALK_HOST=nextcloud-aio-talk
       - TURN_SECRET
+      - TURN_DOMAIN                     # Public TURN host. Empty falls back to NC_DOMAIN.
       - SIGNALING_SECRET
       - AIO_LOG_LEVEL
       - TZ=${TIMEZONE}
