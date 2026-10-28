@@ -6,6 +6,8 @@ Manual Docker Compose deployment of Nextcloud AIO, adapted for ipvlan networking
 
 **Do not auto-update images.** AIO image updates can require `compose.yaml` and environment changes (new env vars, changed defaults, added/removed services). Pulling new images without syncing those files can break the stack silently.
 
+**Merging to `main` deploys.** Arcane uses this repository as a GitOps source. After a merge it syncs `main` into the stack directory and redeploys the stack, pulling the current images as it does. On 2026-10-28 the merge landed at 17:20:46 ADT, the stack directory updated at 17:23:12, and the containers were recreated by 17:25 on that day's AIO images. The `com.getarcaneapp.arcane.updater=false` labels only stop Arcane's separate image-update feature, not this redeploy. Treat every merge, including a docs-only one, as a deployment, and take the rollback point before merging.
+
 ### Update procedure
 
 1. Check upstream for compose changes while the stack remains online:
@@ -30,13 +32,13 @@ Manual Docker Compose deployment of Nextcloud AIO, adapted for ipvlan networking
 
 4. Add an entry to `UPSTREAM-SYNC.md` with the exact `${UPSTREAM_AIO_SHA}`, the source files reviewed, changes adopted, and notable upstream changes intentionally not adopted.
 
-5. Enter the maintenance window and establish a rollback point:
+5. Before merging, establish a rollback point using the stack's established backup process, for example a hypervisor snapshot of the host plus a database dump:
    ```bash
-   docker compose down
+   docker exec nextcloud-aio-database pg_dump -Fc -U nextcloud nextcloud_database > nextcloud-pre-update.dump
    ```
-   After the containers stop, create or confirm a current rollback point using the stack's established backup process. This repository does not prescribe the backup implementation.
+   This repository does not prescribe the backup implementation.
 
-6. Pull new images and restart:
+6. Merge the change to `main`. Arcane syncs it and redeploys the stack with freshly pulled images within a few minutes. Without Arcane, deploy by hand from the stack directory:
    ```bash
    docker compose pull
    docker compose up -d
@@ -50,7 +52,7 @@ Manual Docker Compose deployment of Nextcloud AIO, adapted for ipvlan networking
 
 ### What NOT to do
 
-- **Don't use Arcane's image update feature for this stack.** It would pull new images without updating `compose.yaml` or environment variables, which can cause breakage.
+- **Don't use Arcane's image update feature for this stack.** It would pull new images without updating `compose.yaml` or environment variables, which can cause breakage. The GitOps redeploy that follows a merge is expected, so it is the merge that has to wait for the diff review.
 - **Don't fork the AIO repo to track changes.** Your `compose.yaml` is heavily customized (ipvlan networking, removed services, added memories transcoder). Merge conflicts on every upstream change would be constant and error-prone. A manual diff is lower effort and safer.
 
 ### Recommended workflow

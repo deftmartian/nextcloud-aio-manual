@@ -33,10 +33,12 @@ Only run `git pull` if the user explicitly asks to update the Git checkout itsel
 - Apache uses ipvlan for reverse proxy access and the internal bridge for backend services.
 - Talk is ipvlan-only.
 - Most other services are bridge-only.
-- Arcane image updates are disabled and should stay disabled for this stack.
+- Arcane's image-update feature is disabled (`arcane.updater=false`) and should stay disabled for this stack. Arcane's GitOps sync stays on: it redeploys on merge.
 - The memories transcoder customization should be preserved.
 - `.env` is ignored because it contains deployment-specific values. Do not read, edit, or ask to commit `.env` unless the user explicitly requests it. Use `.env.example` for tracked variable comparisons.
 
 ## Operational Caution
 
 Do not auto-update container images for this stack. Upstream AIO image changes can require matching Compose or environment changes, so the diff review must happen before any `docker compose pull` or restart.
+
+Merging to `main` is a deployment. Arcane syncs `main` and redeploys the stack with freshly pulled images within minutes, even for a docs-only merge. Open changes as pull requests. Merging is the deploy step, so the rollback point (snapshot and database dump) comes before the merge.
