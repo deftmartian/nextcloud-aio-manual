@@ -6,6 +6,26 @@ preserves ipvlan networking, external reverse-proxy handling, Arcane labels,
 `TURN_DOMAIN` for a public TURN host other than `NC_DOMAIN`, and
 the memories transcoder customization.
 
+## 2026-10-28 - `nextcloud/all-in-one@70c9331e3a676c1d3bce796cc090b3927afcc445`
+
+Source files reviewed:
+
+- `manual-install/latest.yml`
+- `manual-install/sample.conf`
+
+Covers AIO v14.4.1 and v14.4.2. v14.4.2 only rebuilds images for the brotli
+advisories and still ships Nextcloud 34.0.5.
+
+Changes adopted:
+
+- PostgreSQL mounts `/var/lib/postgresql` as tmpfs (upstream `2bd2e2b`). The
+  image declares that path as a volume, so without the tmpfs each recreate
+  leaves an orphaned anonymous volume. The named data volume at
+  `/var/lib/postgresql/data` is unaffected.
+
+`sample.conf` is unchanged since `f294364`. Every non-adoption from that sync
+still applies.
+
 ## 2026-09-30 - `nextcloud/all-in-one@f294364355190ddedcd646c471a0bfe852173d47`
 
 Source files reviewed:
