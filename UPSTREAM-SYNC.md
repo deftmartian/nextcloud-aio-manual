@@ -6,6 +6,22 @@ preserves ipvlan networking, external reverse-proxy handling, Arcane labels,
 `TURN_DOMAIN` for a public TURN host other than `NC_DOMAIN`, and
 the memories transcoder customization.
 
+## 2026-11-03 - `nextcloud/all-in-one@e525bb35e57a106fa628caafacd2187223e858d1`
+
+Source files reviewed:
+
+- `manual-install/latest.yml`
+- `manual-install/sample.conf`
+
+Covers AIO v14.4.3, the second part of the brotli security rebuilds. It still
+ships Nextcloud 34.0.5. Neither file changed upstream since `70c9331`, at either
+the `v14.4.3` tag or `main`.
+
+Changes adopted:
+
+- None. This entry records the sync so that the redeploy pulls the rebuilt
+  `:latest` images.
+
 ## 2026-10-28 - `nextcloud/all-in-one@70c9331e3a676c1d3bce796cc090b3927afcc445`
 
 Source files reviewed:
