@@ -490,8 +490,11 @@ services:
       - TZ=${TIMEZONE}
       - NEXTCLOUD_HOST=https://${NC_DOMAIN}
       - NVIDIA_VISIBLE_DEVICES=all
+      # go-vod 0.7.0+ (Memories 11) refuses to start without a cache dir; keeps keyframes/storyboards across restarts.
+      - CACHE_DIR=/cache
     volumes:
       - ${NEXTCLOUD_DATADIR}:/mnt/ncdata:ro
+      - nextcloud_aio_memories_cache:/cache
     restart: unless-stopped
     cap_drop:
       - NET_RAW
@@ -517,6 +520,8 @@ volumes:
     name: nextcloud_aio_database_dump
   nextcloud_aio_elasticsearch:
     name: nextcloud_aio_elasticsearch
+  nextcloud_aio_memories_cache:
+    name: nextcloud_aio_memories_cache
   nextcloud_aio_nextcloud:
     name: nextcloud_aio_nextcloud
   nextcloud_aio_redis:
