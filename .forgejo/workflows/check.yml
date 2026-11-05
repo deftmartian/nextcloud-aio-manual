@@ -1,0 +1,44 @@
+name: Check
+
+# Arcane deploys main within minutes, so check the compose file(s) before merge.
+# Placeholder values stand in for the host's untracked .env (never in Git).
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  compose:
+    runs-on: trixie-docker   # docker compose config needs only the CLI
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: docker compose config
+        env:
+          DNS_SERVER: "192.0.2.53"
+          VLAN_TAG: "100"
+          VLAN_TRUNK_INTERFACE: "eth0"
+          NC_DOMAIN: "nextcloud.example.invalid"
+          APACHE_PORT: "11000"
+          TALK_PORT: "3478"
+          TIMEZONE: "UTC"
+          NEXTCLOUD_DATADIR: "/srv/ci-placeholder/ncdata"
+          NEXTCLOUD_TRUSTED_CACERTS_DIR: "/srv/ci-placeholder/certs"
+          DATABASE_PASSWORD: "ci-placeholder"
+          FULLTEXTSEARCH_PASSWORD: "ci-placeholder"
+          NEXTCLOUD_PASSWORD: "ci-placeholder"
+          REDIS_PASSWORD: "ci-placeholder"
+          TALK_INTERNAL_SECRET: "ci-placeholder"
+          ADDITIONAL_COLLABORA_OPTIONS: ""
+          COLLABORA_DICTIONARIES: "en_CA"
+          COLLABORA_LOG_LEVEL: "warning"
+          FULLTEXTSEARCH_JAVA_OPTIONS: "-Xms512M"
+          NEXTCLOUD_ADDITIONAL_APKS: ""
+          NEXTCLOUD_ADDITIONAL_PHP_EXTENSIONS: ""
+          NEXTCLOUD_MAX_TIME: "3600"
+          NEXTCLOUD_MEMORY_LIMIT: "512M"
+          NEXTCLOUD_STARTUP_APPS: ""
+          NEXTCLOUD_UPLOAD_LIMIT: "16G"
+        run: |
+          docker compose -f compose.yaml config --quiet
