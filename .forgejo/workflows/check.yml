@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   compose:
-    runs-on: trixie-docker   # docker compose config needs only the CLI
+    runs-on: light-docker   # docker compose config needs only the CLI
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7
