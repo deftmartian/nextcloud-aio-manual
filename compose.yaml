@@ -16,6 +16,9 @@ services:
       nextcloud-aio-nextcloud:
         condition: service_started
         required: false
+      nextcloud-aio-harp:
+        condition: service_started
+        required: false
     image: ghcr.io/nextcloud-releases/aio-apache:20261109_101109
     labels:
       - com.getarcaneapp.arcane.updater=false
@@ -200,6 +203,8 @@ services:
       - IMAGINARY_SECRET
       - WHITEBOARD_SECRET
       - WHITEBOARD_ENABLED
+      - HARP_ENABLED
+      - HP_SHARED_KEY
     stop_grace_period: 600s
     restart: unless-stopped
     shm_size: 134217728
@@ -467,6 +472,46 @@ services:
   # Downloads its binary from Nextcloud at startup, so the memories container
   # will restart-loop until Nextcloud is up and the Memories app is installed.
   #
+  # HaRP: AppAPI's proxy for ExApps (for example recognize_backend). It holds the
+  # Docker socket and creates ExApp containers on nextcloud-internal, so a
+  # Nextcloud admin account can start containers on this host. Register it once:
+  #   docker compose exec nextcloud-aio-nextcloud sh -c 'php occ app_api:daemon:register harp_aio "HaRP AIO" docker-install http nextcloud-aio-harp:8780 "https://$NC_DOMAIN" --net nextcloud-internal --harp --harp_frp_address nextcloud-aio-harp:8782 --harp_shared_key "$HP_SHARED_KEY" --compute_device cuda --set-default'
+  nextcloud-aio-harp:
+    container_name: nextcloud-aio-harp
+    image: ghcr.io/nextcloud-releases/aio-harp:20261109_101109
+    labels:
+      - com.getarcaneapp.arcane.updater=false
+    init: true
+    expose:
+      - "8780"
+    healthcheck:
+      start_period: 0s
+      test: /healthcheck.sh
+      interval: 10s
+      timeout: 10s
+      start_interval: 5s
+      retries: 9
+    environment:
+      - HP_SHARED_KEY
+      - NC_INSTANCE_URL=https://${NC_DOMAIN}
+      - HP_FRP_DISABLE_TLS=true
+      # Refuse ExApp bind mounts of /dev, /run, /root, Docker volume dirs and
+      # other sensitive host paths now, rather than only warning (upstream main).
+      - HP_EXAPP_BIND_MOUNTS_ENFORCE_ALL=true
+      - TZ=${TIMEZONE}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - nextcloud_aio_harp:/certs:rw
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /run/harp
+    cap_drop:
+      - NET_RAW
+    networks:
+      - nextcloud-internal
+
   # After first startup, run inside the nextcloud container:
   #   docker compose exec nextcloud-aio-nextcloud php occ config:system:set memories.vod.external --value true --type bool
   #   docker compose exec nextcloud-aio-nextcloud php occ config:system:set memories.vod.connect --value nextcloud-aio-memories-transcoder:47788
@@ -520,6 +565,8 @@ volumes:
     name: nextcloud_aio_database_dump
   nextcloud_aio_elasticsearch:
     name: nextcloud_aio_elasticsearch
+  nextcloud_aio_harp:
+    name: nextcloud_aio_harp
   nextcloud_aio_memories_cache:
     name: nextcloud_aio_memories_cache
   nextcloud_aio_nextcloud:

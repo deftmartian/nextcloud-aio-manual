@@ -89,12 +89,14 @@ https://github.com/nextcloud/all-in-one/releases
                     │  ClamAV      Imaginary          │
                     │  Fulltextsearch                 │
                     │  Memories Transcoder (NVIDIA)   │
+                    │  HaRP → ExApps (NVIDIA)         │
                     └────────────────────────────────┘
 ```
 
 - **Apache** is on both networks (ipvlan for reverse proxy access, bridge for backend containers)
 - **Talk** is ipvlan-only (eturnal relay IP detection breaks with dual NICs)
 - **All other services** are bridge-only
+- **HaRP** holds the Docker socket and creates AppAPI ExApp containers (such as `recognize_backend`) on `nextcloud-internal`. Apache routes `/exapps/` to it. Any Nextcloud admin can therefore start containers, with the GPU, on this host. The daemon is registered once with the `occ` command in the comment above the service in `compose.yaml`.
 
 ## Post-migration setup
 
