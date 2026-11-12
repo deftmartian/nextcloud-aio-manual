@@ -6,6 +6,26 @@ preserves ipvlan networking, external reverse-proxy handling, Arcane labels,
 `TURN_DOMAIN` for a public TURN host other than `NC_DOMAIN`, and
 the memories transcoder customization.
 
+## 2026-11-12 (later) - HaRP adopted from `97ef10c`, images `20261109_101109`
+
+Changes adopted:
+
+- The `nextcloud-aio-harp` service from the v15.0.2 `latest.yml`, on
+  `nextcloud-internal` with a container name and the Arcane label, and the
+  Docker socket mounted from `/var/run/docker.sock` instead of
+  `${WATCHTOWER_DOCKER_SOCKET_PATH}`. This supports Recognize 13's
+  `recognize_backend` ExApp on the GPU.
+- `HP_EXAPP_BIND_MOUNTS_ENFORCE_ALL=true`, from upstream `main` (not in the
+  v15.0.2 file). The v15.0.2 HaRP image already supports it.
+- Apache's optional `depends_on` HaRP, Nextcloud's `HARP_ENABLED` and
+  `HP_SHARED_KEY`, and the `nextcloud_aio_harp` volume.
+
+Not adopted:
+
+- No compose profile, as for the other services.
+
+The deploy daemon is registered by hand; AIO does not register it.
+
 ## 2026-11-12 - `nextcloud/all-in-one@97ef10c8049d307a97ad7ed3f2534f00b97f2133`, images `20261109_101109`
 
 Source files reviewed:
