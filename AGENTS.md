@@ -8,9 +8,9 @@ When the user asks to "update this repo", "pull the latest", or "do a diff" in t
 
 The expected workflow is to compare this customized stack against upstream Nextcloud AIO manual install files:
 
-1. Resolve the current upstream AIO commit and fetch manual install files pinned to that commit:
+1. Resolve the release to pin and the upstream commit its images were built from, then fetch manual install files at that commit. Do not review upstream `main`: it can carry compose changes for images that are not released yet.
    ```bash
-   UPSTREAM_AIO_SHA="$(git ls-remote https://github.com/nextcloud/all-in-one.git refs/heads/main | awk '{print $1}')"
+   eval "$(scripts/aio-release)"   # sets AIO_IMAGE_TAG, UPSTREAM_AIO_SHA, NEXTCLOUD_VERSION
    curl -fsSL -o /tmp/nextcloud-aio-latest.yml "https://raw.githubusercontent.com/nextcloud/all-in-one/${UPSTREAM_AIO_SHA}/manual-install/latest.yml"
    curl -fsSL -o /tmp/nextcloud-aio-sample.conf "https://raw.githubusercontent.com/nextcloud/all-in-one/${UPSTREAM_AIO_SHA}/manual-install/sample.conf"
    ```
@@ -23,7 +23,7 @@ The expected workflow is to compare this customized stack against upstream Nextc
    diff -u .env.example /tmp/nextcloud-aio-sample.conf
    ```
 4. Report changes that may need manual adoption, especially new or removed environment variables, service changes, volume changes, ports, healthchecks, image behavior, or changed defaults.
-5. If making any repo edit as part of the sync, add or update `UPSTREAM-SYNC.md` with the exact `${UPSTREAM_AIO_SHA}`, source files reviewed, changes adopted, and intentional non-adoptions.
+5. Set every `ghcr.io/nextcloud-releases/aio-*` image to `${AIO_IMAGE_TAG}`. If making any repo edit as part of the sync, add or update `UPSTREAM-SYNC.md` with the exact `${UPSTREAM_AIO_SHA}` and `${AIO_IMAGE_TAG}`, source files reviewed, changes adopted, and intentional non-adoptions.
 
 Only run `git pull` if the user explicitly asks to update the Git checkout itself. The remote may require user-controlled SSH hardware-key authentication, so do not treat a failed `git pull` as part of the normal AIO update workflow.
 
@@ -39,4 +39,4 @@ Only run `git pull` if the user explicitly asks to update the Git checkout itsel
 
 ## Operational Caution
 
-Do not auto-update container images for this stack. Upstream AIO image changes can require matching Compose or environment changes, so the diff review must happen before any `docker compose pull` or restart.
+Do not auto-update container images for this stack. AIO images are pinned to one dated release tag and move only in a reviewed sync; keep Renovate disabled for them. Upstream AIO image changes can require matching Compose or environment changes, so the diff review must happen before any `docker compose pull` or restart.

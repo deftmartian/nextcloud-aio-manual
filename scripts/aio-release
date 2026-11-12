@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# Print the AIO image tag to pin and the upstream commit those images were
+# built from. Review manual-install/ at that commit, not at upstream main:
+# main can carry compose changes for images that are not released yet.
+#
+# Usage: scripts/aio-release            # the build that :latest points to
+#        scripts/aio-release 20261109_101109
+set -euo pipefail
+
+repo=nextcloud-releases/aio-nextcloud
+accept='application/vnd.oci.image.index.v1+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.v2+json'
+
+token=$(curl -fsS "https://ghcr.io/token?scope=repository:${repo}:pull" |
+  python3 -I -c 'import json,sys; print(json.load(sys.stdin)["token"])')
+reg() { curl -fsSL -H "Authorization: Bearer ${token}" -H "Accept: ${accept}" "https://ghcr.io/v2/${repo}/$1"; }
+digest_of() {
+  curl -fsSI -H "Authorization: Bearer ${token}" -H "Accept: ${accept}" "https://ghcr.io/v2/${repo}/manifests/$1" |
+    tr -d '\r' | awk 'tolower($1)=="docker-content-digest:" {print $2}'
+}
+
+if [ $# -ge 1 ]; then
+  tag=$1
+else
+  latest=$(digest_of latest)
+  # Dated tags (YYYYMMDD_HHMMSS) sort chronologically; walk back from the newest.
+  tag=""
+  for t in $(reg "tags/list?n=5000" |
+    python3 -I -c 'import json,re,sys; [print(t) for t in sorted(json.load(sys.stdin)["tags"], reverse=True) if re.fullmatch(r"\d{8}_\d{6}", t)]' |
+    head -n 10); do
+    if [ "$(digest_of "$t")" = "$latest" ]; then tag=$t; break; fi
+  done
+  [ -n "$tag" ] || { echo "no dated tag matches :latest among the 10 newest" >&2; exit 1; }
+fi
+
+amd64=$(reg "manifests/${tag}" | python3 -I -c '
+import json, sys
+m = json.load(sys.stdin)
+print(next(x["digest"] for x in m["manifests"] if x["platform"].get("architecture") == "amd64"))')
+config=$(reg "manifests/${amd64}" | python3 -I -c 'import json,sys; print(json.load(sys.stdin)["config"]["digest"])')
+reg "blobs/${config}" | python3 -I -c '
+import json, sys
+c = json.load(sys.stdin)["config"]
+env = dict(e.split("=", 1) for e in c.get("Env", []))
+print("AIO_IMAGE_TAG=" + sys.argv[1])
+print("UPSTREAM_AIO_SHA=" + c["Labels"]["org.opencontainers.image.revision"])
+print("NEXTCLOUD_VERSION=" + env.get("NEXTCLOUD_VERSION", "unknown"))' "$tag"

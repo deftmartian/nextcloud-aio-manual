@@ -1,4 +1,12 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["local>deftmartian/renovate"]
+  "extends": ["local>deftmartian/renovate"],
+  "packageRules": [
+    {
+      "description": "AIO images move together with a reviewed upstream sync (scripts/aio-release, UPSTREAM-SYNC.md), never on their own",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["ghcr.io/nextcloud-releases/**"],
+      "enabled": false
+    }
+  ]
 }

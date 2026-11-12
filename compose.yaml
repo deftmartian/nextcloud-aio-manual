@@ -16,7 +16,7 @@ services:
       nextcloud-aio-nextcloud:
         condition: service_started
         required: false
-    image: ghcr.io/nextcloud-releases/aio-apache:latest
+    image: ghcr.io/nextcloud-releases/aio-apache:20261109_101109
     labels:
       - com.getarcaneapp.arcane.updater=false
     user: "33"
@@ -68,7 +68,7 @@ services:
 
   nextcloud-aio-database:
     container_name: nextcloud-aio-database
-    image: ghcr.io/nextcloud-releases/aio-postgresql:latest
+    image: ghcr.io/nextcloud-releases/aio-postgresql:20261109_101109
     labels:
       - com.getarcaneapp.arcane.updater=false
     user: "999"
@@ -122,7 +122,7 @@ services:
       nextcloud-aio-imaginary:
         condition: service_started
         required: false
-    image: ghcr.io/nextcloud-releases/aio-nextcloud:latest
+    image: ghcr.io/nextcloud-releases/aio-nextcloud:20261109_101109
     labels:
       - com.getarcaneapp.arcane.updater=false
     init: true
@@ -210,7 +210,7 @@ services:
 
   nextcloud-aio-notify-push:
     container_name: nextcloud-aio-notify-push
-    image: ghcr.io/nextcloud-releases/aio-notify-push:latest
+    image: ghcr.io/nextcloud-releases/aio-notify-push:20261109_101109
     labels:
       - com.getarcaneapp.arcane.updater=false
     user: "33"
@@ -232,8 +232,6 @@ services:
       - TZ=${TIMEZONE}
     restart: unless-stopped
     read_only: true
-    tmpfs:
-      - /tmp
     cap_drop:
       - NET_RAW
     networks:
@@ -241,7 +239,7 @@ services:
 
   nextcloud-aio-redis:
     container_name: nextcloud-aio-redis
-    image: ghcr.io/nextcloud-releases/aio-redis:latest
+    image: ghcr.io/nextcloud-releases/aio-redis:20261109_101109
     labels:
       - com.getarcaneapp.arcane.updater=false
     user: "999"
@@ -273,7 +271,7 @@ services:
   nextcloud-aio-collabora:
     container_name: nextcloud-aio-collabora
     command: ${ADDITIONAL_COLLABORA_OPTIONS}
-    image: ghcr.io/nextcloud-releases/aio-collabora:latest
+    image: ghcr.io/nextcloud-releases/aio-collabora:20261109_101109
     labels:
       - com.getarcaneapp.arcane.updater=false
     init: true
@@ -314,7 +312,7 @@ services:
 
   nextcloud-aio-talk:
     container_name: nextcloud-aio-talk
-    image: ghcr.io/nextcloud-releases/aio-talk:latest
+    image: ghcr.io/nextcloud-releases/aio-talk:20261109_101109
     labels:
       - com.getarcaneapp.arcane.updater=false
     user: "1000"
@@ -362,7 +360,7 @@ services:
 
   nextcloud-aio-clamav:
     container_name: nextcloud-aio-clamav
-    image: ghcr.io/nextcloud-releases/aio-clamav:latest
+    image: ghcr.io/nextcloud-releases/aio-clamav:20261109_101109
     labels:
       - com.getarcaneapp.arcane.updater=false
     user: "100"
@@ -395,7 +393,7 @@ services:
 
   nextcloud-aio-imaginary:
     container_name: nextcloud-aio-imaginary
-    image: ghcr.io/nextcloud-releases/aio-imaginary:latest
+    image: ghcr.io/nextcloud-releases/aio-imaginary:20261109_101109
     labels:
       - com.getarcaneapp.arcane.updater=false
     user: "65534"
@@ -426,10 +424,10 @@ services:
 
   nextcloud-aio-fulltextsearch:
     container_name: nextcloud-aio-fulltextsearch
-    image: ghcr.io/nextcloud-releases/aio-fulltextsearch:latest
+    image: ghcr.io/nextcloud-releases/aio-fulltextsearch:20261109_101109
     labels:
       - com.getarcaneapp.arcane.updater=false
-    init: true
+    init: false
     healthcheck:
       start_period: 60s
       test: /healthcheck.sh
@@ -478,7 +476,7 @@ services:
   #     - /dev/dri:/dev/dri
   nextcloud-aio-memories-transcoder:
     container_name: nextcloud-aio-memories-transcoder
-    image: radialapps/go-vod:latest
+    image: radialapps/go-vod:latest@sha256:935c4e4f4e889cd47d5e1b15d42920762d5fc0657343f613e08b6d75cba607ff
     labels:
       - com.getarcaneapp.arcane.updater=false
     init: true
