@@ -6,6 +6,32 @@ preserves ipvlan networking, external reverse-proxy handling, Arcane labels,
 `TURN_DOMAIN` for a public TURN host other than `NC_DOMAIN`, and
 the memories transcoder customization.
 
+## 2026-11-12 - `nextcloud/all-in-one@6a92d77d83e4d87bde30c79ffff2de3cc1321e09`
+
+Source files reviewed:
+
+- `manual-install/latest.yml`
+- `manual-install/sample.conf`
+
+Covers AIO v15.0.0 through v15.0.2. **v15 ships Nextcloud 35.0.2, a major
+upgrade from 34.0.5.** Because this stack uses `:latest`, the redeploy that
+follows merging this sync upgrades Nextcloud to 35. `sample.conf` is unchanged
+since `f294364`.
+
+Changes adopted:
+
+- notify-push mounts a `/tmp` tmpfs. The v15 image can refresh its trusted CAs
+  at startup, and the container is read-only.
+- fulltextsearch runs with `init: true`.
+
+Not adopted:
+
+- The notify-push bind mount `${NEXTCLOUD_TRUSTED_CACERTS_DIR}:/usr/local/share/ca-certificates:ro`.
+  This stack leaves `NEXTCLOUD_TRUSTED_CACERTS_DIR` empty, and an empty source
+  makes the volume spec invalid. Add the mount if a CA directory is ever set.
+- HaRP's `HP_EXAPP_BIND_MOUNTS_ENFORCE_ALL=true`. HaRP stays omitted, as in the
+  2026-09-30 sync.
+
 ## 2026-11-03 - `nextcloud/all-in-one@e525bb35e57a106fa628caafacd2187223e858d1`
 
 Source files reviewed:

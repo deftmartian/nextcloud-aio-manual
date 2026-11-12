@@ -232,6 +232,8 @@ services:
       - TZ=${TIMEZONE}
     restart: unless-stopped
     read_only: true
+    tmpfs:
+      - /tmp
     cap_drop:
       - NET_RAW
     networks:
@@ -427,7 +429,7 @@ services:
     image: ghcr.io/nextcloud-releases/aio-fulltextsearch:latest
     labels:
       - com.getarcaneapp.arcane.updater=false
-    init: false
+    init: true
     healthcheck:
       start_period: 60s
       test: /healthcheck.sh
