@@ -23,6 +23,13 @@ Changes adopted:
 - notify-push mounts a `/tmp` tmpfs. The v15 image can refresh its trusted CAs
   at startup, and the container is read-only.
 - fulltextsearch runs with `init: true`.
+- The Nextcloud service passes `COLLABORA_ENABLED` and `ONLYOFFICE_ENABLED`
+  through from `.env`, as upstream does. Since the first commit they were
+  hardcoded to `true` and `false`. The entrypoint enables Collabora only on
+  the exact string `yes`, so `true` skipped the `richdocuments` install and
+  update, `wopi_url`, the WOPI allowlist, and `richdocuments:activate-config`.
+  With `REMOVE_DISABLED_APPS=yes` it also removed `richdocuments` on every
+  start. The deployment `.env` must have `COLLABORA_ENABLED="yes"`.
 
 Not adopted:
 
