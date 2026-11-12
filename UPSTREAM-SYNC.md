@@ -6,6 +6,47 @@ preserves ipvlan networking, external reverse-proxy handling, Arcane labels,
 `TURN_DOMAIN` for a public TURN host other than `NC_DOMAIN`, and
 the memories transcoder customization.
 
+## 2026-11-12 - `nextcloud/all-in-one@97ef10c8049d307a97ad7ed3f2534f00b97f2133`, images `20261109_101109`
+
+Source files reviewed:
+
+- `manual-install/latest.yml`
+- `manual-install/sample.conf`
+
+AIO v15.0.2. The images tagged `20261109_101109` were built from `97ef10c`
+(the v15.0.2 version bump) and **ship Nextcloud 35.0.2, a major upgrade from
+34.0.5**. Both `manual-install` files at `97ef10c` are identical to the
+`e525bb3` sync. Every field of every shared service and every
+`sample.conf` variable was compared again, not only the change since the last
+sync.
+
+Changes adopted:
+
+- Every `ghcr.io/nextcloud-releases/aio-*` image is pinned to
+  `20261109_101109`, and go-vod is pinned by digest. With `:latest`, any merge
+  (Arcane redeploys on each one) could pull a new release.
+  `scripts/aio-release` prints the tag to pin, the upstream commit its images
+  were built from, and the Nextcloud version. Renovate is disabled for the AIO
+  images.
+- The Nextcloud service passes `COLLABORA_ENABLED` and `ONLYOFFICE_ENABLED`
+  through from `.env`, as upstream does. Since the first commit they were
+  hardcoded to `true` and `false`. The entrypoint enables Collabora only on
+  the exact string `yes`, so `true` skipped the `richdocuments` install and
+  update, `wopi_url`, the WOPI allowlist, and `richdocuments:activate-config`.
+  With `REMOVE_DISABLED_APPS=yes` it also removed `richdocuments` on every
+  start. The deployment `.env` must have `COLLABORA_ENABLED="yes"`.
+
+Not adopted:
+
+- Upstream `main` (`6a92d77`) adds a notify-push `/tmp` tmpfs and CA mount,
+  fulltextsearch `init: true`, and HaRP's `HP_EXAPP_BIND_MOUNTS_ENFORCE_ALL`.
+  None is in a released image yet; adopt them with the release that ships
+  them. Leave out the CA mount while `NEXTCLOUD_TRUSTED_CACERTS_DIR` is empty,
+  because an empty source makes the volume spec invalid.
+- The `NEXTCLOUD_MOUNT` bind mount and the CA mounts on nextcloud and talk.
+  Both variables are empty here.
+- Every non-adoption from the 2026-09-30 sync still applies.
+
 ## 2026-11-03 - `nextcloud/all-in-one@e525bb35e57a106fa628caafacd2187223e858d1`
 
 Source files reviewed:

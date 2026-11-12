@@ -6,11 +6,18 @@ Manual Docker Compose deployment of Nextcloud AIO, adapted for ipvlan networking
 
 **Do not auto-update images.** AIO image updates can require `compose.yaml` and environment changes (new env vars, changed defaults, added/removed services). Pulling new images without syncing those files can break the stack silently.
 
+Every AIO image is pinned to one dated release tag (`YYYYMMDD_HHMMSS`), the same on every `ghcr.io/nextcloud-releases/aio-*` line, so the merged commit decides exactly what runs. Arcane redeploys on every merge, and with `:latest` an unrelated change could pull a new release, including a Nextcloud major. go-vod is pinned by digest. Renovate is disabled for the AIO images.
+
 ### Update procedure
 
-1. Check upstream for compose changes while the stack remains online:
+1. Find the release to pin and the upstream commit its images were built from, while the stack remains online:
    ```bash
-   UPSTREAM_AIO_SHA="$(git ls-remote https://github.com/nextcloud/all-in-one.git refs/heads/main | awk '{print $1}')"
+   eval "$(scripts/aio-release)"   # sets AIO_IMAGE_TAG, UPSTREAM_AIO_SHA, NEXTCLOUD_VERSION
+   ```
+   Review `manual-install/` at `${UPSTREAM_AIO_SHA}`, not at upstream `main`: `main` can carry compose changes for images that are not released yet. If `NEXTCLOUD_VERSION` changes major, read the AIO release notes and check that the installed apps support it.
+
+   Check upstream for compose changes:
+   ```bash
    curl -fsSL -o /tmp/nextcloud-aio-latest.yml "https://raw.githubusercontent.com/nextcloud/all-in-one/${UPSTREAM_AIO_SHA}/manual-install/latest.yml"
    diff -u compose.yaml /tmp/nextcloud-aio-latest.yml
    ```
@@ -26,9 +33,9 @@ Manual Docker Compose deployment of Nextcloud AIO, adapted for ipvlan networking
    ```
    Look for new variables or renamed ones. Add any new required variables to `.env.example`, then update the deployment `.env` manually without committing it.
 
-3. Apply relevant changes to `compose.yaml` and `.env.example`, keeping your customizations (ipvlan, removed services, memories transcoder, etc.).
+3. Apply relevant changes to `compose.yaml` and `.env.example`, keeping your customizations (ipvlan, removed services, memories transcoder, etc.). Set every `ghcr.io/nextcloud-releases/aio-*` image to `${AIO_IMAGE_TAG}`.
 
-4. Add an entry to `UPSTREAM-SYNC.md` with the exact `${UPSTREAM_AIO_SHA}`, the source files reviewed, changes adopted, and notable upstream changes intentionally not adopted.
+4. Add an entry to `UPSTREAM-SYNC.md` with the exact `${UPSTREAM_AIO_SHA}` and `${AIO_IMAGE_TAG}`, the source files reviewed, changes adopted, and notable upstream changes intentionally not adopted.
 
 5. Enter the maintenance window and establish a rollback point:
    ```bash
